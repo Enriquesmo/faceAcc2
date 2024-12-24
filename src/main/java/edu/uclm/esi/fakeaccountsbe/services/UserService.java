@@ -72,12 +72,11 @@ public class UserService {
 		Optional<User> optUser=this.userDao.findById(email);
 		
 		if (!optUser.isPresent())
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Credenciales incorrectas");
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Credenciales incorrectas1");
 		
 		User user=optUser.get();
 		if (!user.getPwd().equals(pwd))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Credenciales incorrectas");
-
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Credenciales incorrectas2 " + user.getPwd() + " " + pwd);
 		return user;
 	}
 
