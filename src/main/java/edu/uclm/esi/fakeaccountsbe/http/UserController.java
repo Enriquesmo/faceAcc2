@@ -85,8 +85,9 @@ public class UserController {
 	@PutMapping("/login1")
 	public ResponseEntity<String> login1(HttpServletResponse response, HttpServletRequest request, @RequestBody User user) {
 	    String fakeUserId = this.findCookie(request, "fakeUserId");
+	    String userEmail = this.findCookie(request, "userEmail");
 
-	    if (fakeUserId == null) {
+	    if (fakeUserId == null || userEmail == null) {
 	        // Validar las credenciales del usuario
 	        user = this.userService.find(user.getEmail(), user.getPwd());
 	        if (user == null) {
@@ -95,17 +96,26 @@ public class UserController {
 
 	        // Generar un nuevo ID para la cookie
 	        fakeUserId = UUID.randomUUID().toString();
-	        
-	        // Configurar la cookie con atributos seguros
-	        Cookie cookie = new Cookie("fakeUserId", fakeUserId);
-	        cookie.setMaxAge(3600 * 24 * 365); // 1 año
-	        cookie.setPath("/");
-	        cookie.setHttpOnly(true); // Previene accesos desde JavaScript
-	        cookie.setSecure(true);   // Solo HTTPS
-	        cookie.setAttribute("SameSite", "Strict"); // Previene CSRF
 
-	        // Añadir la cookie a la respuesta
-	        response.addCookie(cookie);
+	        // Configurar la cookie de fakeUserId
+	        Cookie idCookie = new Cookie("fakeUserId", fakeUserId);
+	        idCookie.setMaxAge(3600 * 24 * 365); // 1 año
+	        idCookie.setPath("/");
+	        idCookie.setHttpOnly(true); // Previene accesos desde JavaScript
+	        idCookie.setSecure(true);   // Solo HTTPS
+	        idCookie.setAttribute("SameSite", "Strict"); // Previene CSRF
+
+	        // Configurar la cookie de userEmail
+	        Cookie emailCookie = new Cookie("userEmail", user.getEmail());
+	        emailCookie.setMaxAge(3600 * 24 * 365); // 1 año
+	        emailCookie.setPath("/");
+	        emailCookie.setHttpOnly(false); // Previene accesos desde JavaScript
+	        emailCookie.setSecure(true);   // Solo HTTPS
+	        emailCookie.setAttribute("SameSite", "Strict"); // Previene CSRF
+
+	        // Añadir las cookies a la respuesta
+	        response.addCookie(idCookie);
+	        response.addCookie(emailCookie);
 
 	        // Asociar la cookie con el usuario y generar un token
 	        user.setCookie(fakeUserId);
@@ -114,7 +124,7 @@ public class UserController {
 	    } else {
 	        // Buscar al usuario por la cookie existente
 	        user = this.userDao.findByCookie(fakeUserId);
-	        if (user != null) {
+	        if (user != null && user.getEmail().equals(userEmail)) {
 	            // Generar un nuevo token para el usuario
 	            user.setToken(UUID.randomUUID().toString());
 	            this.userDao.save(user);
