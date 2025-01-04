@@ -27,7 +27,8 @@ public class User {
 	@Transient
 	private String ip;
 	private String cookie;
-	
+	@JsonIgnore
+	private boolean vip;
 	public String getEmail() {
 		return email;
 	}
@@ -65,5 +66,11 @@ public class User {
 	}
 	public String getCookie() {
 		return cookie;
+	}
+	public boolean getVip() {
+		return vip;
+	}
+	public void setVip(boolean vip) {
+		this.vip = vip;
 	}
 }

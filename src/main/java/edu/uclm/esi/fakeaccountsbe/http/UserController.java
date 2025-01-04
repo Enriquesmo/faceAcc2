@@ -29,7 +29,7 @@ import edu.uclm.esi.fakeaccountsbe.services.UserService;
 
 @RestController
 @RequestMapping("users")
-@CrossOrigin(origins = { "https://localhost:4200" }, allowCredentials = "true" )
+
 public class UserController {
 	@Autowired
 	private UserService userService;
@@ -58,10 +58,26 @@ public class UserController {
 		User user = new User();
 		user.setEmail(cr.getEmail());
 		user.setPwd(cr.getPwd1());
-		
+		user.setVip(cr.getVip());
 		this.userService.registrar(req.getRemoteAddr(), user);
 	}
-	
+	@GetMapping("/verificar-correo")
+	public ResponseEntity<Boolean> verificarCorreo(@RequestParam String email) {
+	    if (email == null || email.isEmpty()) {
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El correo es obligatorio");
+	    }
+	    return this.userService.verificarCorreo(email);
+	}
+	@GetMapping("/verificar-vip")
+	public ResponseEntity<Boolean> verificarVip(@RequestParam String email) {
+	    if (email == null || email.isEmpty()) {
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El correo es obligatorio");
+	    }
+	    return this.userService.verificarVip(email);
+	}
+
+
+
 	@GetMapping("/registrar2")
 	public void registrar2(HttpServletRequest req, @RequestParam String email, @RequestParam String pwd1, @RequestParam String pwd2) {
 		CredencialesRegistro cr = new CredencialesRegistro();
@@ -101,7 +117,7 @@ public class UserController {
 	        Cookie idCookie = new Cookie("fakeUserId", fakeUserId);
 	        idCookie.setMaxAge(3600 * 24 * 365); // 1 año
 	        idCookie.setPath("/");
-	        idCookie.setHttpOnly(true); // Previene accesos desde JavaScript
+	        //idCookie.setHttpOnly(true); // Previene accesos desde JavaScript
 	        idCookie.setSecure(true);   // Solo HTTPS
 	        idCookie.setAttribute("SameSite", "Strict"); // Previene CSRF
 
@@ -213,6 +229,9 @@ public class UserController {
 	    }
 	    return true;
 	}
+	
+	
+	
 }
 
 

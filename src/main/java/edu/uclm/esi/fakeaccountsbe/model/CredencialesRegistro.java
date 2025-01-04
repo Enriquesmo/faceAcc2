@@ -7,7 +7,7 @@ public class CredencialesRegistro {
 	private String email;
 	private String pwd1;
 	private String pwd2;
-	
+	private boolean vip;
 	public void comprobar() {
 		if (!pwd1.equals(pwd2))
 			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Las passwords no coinciden");
@@ -32,6 +32,12 @@ public class CredencialesRegistro {
 	}
 	public void setPwd2(String pwd) {
 		this.pwd2 = pwd;
+	}
+	public boolean getVip() {
+		return vip;
+	}
+	public void setVip(boolean vip) {
+		this.vip = vip;
 	}
 	
 }
