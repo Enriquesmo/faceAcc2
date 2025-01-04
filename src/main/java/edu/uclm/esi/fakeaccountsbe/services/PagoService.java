@@ -25,7 +25,7 @@ import com.stripe.param.PaymentIntentCreateParams;
 public class PagoService {
 
     static {
-        Stripe.apiKey = "sk_test_51Q7a1xAINUUPHMJgF2JCHcQ3rpBp2n43DJ0504Pf59y9jk8khtvDiT1Iq0MgoL4ADjsZh89x7j6eWiQgcXBnPwKx00Fg7YafKM";
+        Stripe.apiKey = "clave";
     }
 
     // Crear PaymentIntent en Stripe
