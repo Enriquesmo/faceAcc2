@@ -207,6 +207,20 @@ public class UserController {
 	}
 	
 	
+	@PostMapping("/recuperarContrasena")
+	public ResponseEntity<String> recuperarContrasena(@RequestBody Map<String, String> request) {
+	    String email = request.get("email");
+	    try {
+	        userService.recuperarContrasena(email);
+	        return ResponseEntity.ok("Se ha enviado una nueva contraseña a tu correo electrónico.");
+	    } catch (ResponseStatusException e) {
+	        return ResponseEntity.status(e.getStatusCode()).body("Error: " + e.getReason());
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error desconocido: " + e.getMessage());
+	    }
+	}
+	
+	
 
 	
 }

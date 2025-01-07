@@ -3,6 +3,7 @@ package edu.uclm.esi.fakeaccountsbe.services;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,6 +17,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import edu.uclm.esi.fakeaccountsbe.dao.UserDao;
 import edu.uclm.esi.fakeaccountsbe.model.User;
+
+import java.util.Random;
+import java.util.stream.Collectors;
+import jakarta.mail.MessagingException;
 
 @Service
 public class UserService {
@@ -151,6 +156,64 @@ public class UserService {
 	            return null; // Devolvemos null si no se encuentra el usuario
 	        }
 	    }
+	 
+	 @Autowired
+		private EmailService emailService; // Servicio para enviar emails
+		
+		public ResponseEntity<String> recuperarContrasena(String email) throws MessagingException {
+			System.out.println("PATATAAAAAAAAAAAAAAAAAAAAAAAAA");
+		    Optional<User> optUser = userDao.findById(email);
+		    if (!optUser.isPresent()) {
+		        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El correo electrónico no está registrado.");
+		    }
+
+		    User user = optUser.get();
+		    String nuevaContrasena = generarContrasenaAleatoria();
+		    System.out.println("Patata 2 /"+nuevaContrasena);
+
+		    
+		    emailService.enviarEmail(email, "Recuperación de Contraseña",
+		            "Tu nueva contraseña es: " + nuevaContrasena);
+		    
+		    user.setPwd(nuevaContrasena);
+		    userDao.save(user);
+		    
+		    return ResponseEntity.ok("Se ha enviado un correo con la nueva contraseña.");
+		}
+
+
+		private String generarContrasenaAleatoria() {
+		    String mayusculas = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		    String minusculas = "abcdefghijklmnopqrstuvwxyz";
+		    String numeros = "0123456789";
+
+		    StringBuilder contrasena = new StringBuilder();
+		    Random random = new Random();
+
+		    // Añadir al menos una letra mayúscula, una minúscula y un número
+		    contrasena.append(mayusculas.charAt(random.nextInt(mayusculas.length())));
+		    contrasena.append(minusculas.charAt(random.nextInt(minusculas.length())));
+		    contrasena.append(numeros.charAt(random.nextInt(numeros.length())));
+
+		    // Mezclar los caracteres restantes aleatoriamente
+		    String todosCaracteres = mayusculas + minusculas + numeros;
+		    int longitud = 8; // Longitud de la contraseña
+
+		    for (int i = 3; i < longitud; i++) {
+		        contrasena.append(todosCaracteres.charAt(random.nextInt(todosCaracteres.length())));
+		    }
+
+		    // Mezclar los caracteres para evitar un patrón predecible
+		    List<Character> caracteresMezclados = contrasena.chars()
+		        .mapToObj(c -> (char) c)
+		        .collect(Collectors.toList());
+		    Collections.shuffle(caracteresMezclados);
+
+		    StringBuilder contrasenaFinal = new StringBuilder();
+		    caracteresMezclados.forEach(contrasenaFinal::append);
+
+		    return contrasenaFinal.toString();
+		}
 }
 
 
