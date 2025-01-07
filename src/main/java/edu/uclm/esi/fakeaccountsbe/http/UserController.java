@@ -1,7 +1,8 @@
 package edu.uclm.esi.fakeaccountsbe.http;
 
 import java.util.Collection;
-
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import jakarta.servlet.http.Cookie;
@@ -37,20 +38,8 @@ public class UserController {
 	@Autowired
 	private UserDao userDao;
 	
-	@GetMapping("/checkCookie")
-	public String checkCookie(HttpServletRequest request) {
-		String fakeUserId = this.findCookie(request, "fakeUserId");
-		if (fakeUserId!=null) {
-			User user = this.userDao.findByCookie(fakeUserId);
-			if (user!=null) {
-				user.setToken(UUID.randomUUID().toString());
-				this.userDao.save(user);
-				return user.getToken();
-			}
-		}
-		return null;
-	}
-
+	@Autowired
+	private TokenController token;
 	
 	@PostMapping("/registrar1")
 	public void registrar1(HttpServletRequest req, @RequestBody CredencialesRegistro cr) {
@@ -58,50 +47,13 @@ public class UserController {
 		User user = new User();
 		user.setEmail(cr.getEmail());
 		user.setPwd(cr.getPwd1());
-		user.setVip(cr.getVip());
 		this.userService.registrar(req.getRemoteAddr(), user);
-	}
-	@GetMapping("/verificar-correo")
-	public ResponseEntity<Boolean> verificarCorreo(@RequestParam String email) {
-	    if (email == null || email.isEmpty()) {
-	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El correo es obligatorio");
-	    }
-	    return this.userService.verificarCorreo(email);
-	}
-	@GetMapping("/verificar-vip")
-	public ResponseEntity<Boolean> verificarVip(@RequestParam String email) {
-	    if (email == null || email.isEmpty()) {
-	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El correo es obligatorio");
-	    }
-	    return this.userService.verificarVip(email);
-	}
-
-
-
-	@GetMapping("/registrar2")
-	public void registrar2(HttpServletRequest req, @RequestParam String email, @RequestParam String pwd1, @RequestParam String pwd2) {
-		CredencialesRegistro cr = new CredencialesRegistro();
-		cr.setEmail(email);
-		cr.setPwd1(pwd1);
-		cr.setPwd2(pwd2);
-		cr.comprobar();
-		User user = new User();
-		user.setEmail(cr.getEmail());
-		user.setPwd(cr.getPwd1());
-		
-		this.userService.registrar(req.getRemoteAddr(), user);
-	}
-	
-	@GetMapping("/registrarMuchos")
-	public void registrarMuchos(HttpServletRequest req, @RequestParam String name, @RequestParam Integer n) {
-		for (int i=0; i<n; i++)
-			this.registrar2(req, name + i + "@pepe.com", "Pepe1234", "Pepe1234");
 	}
 	
 	@PutMapping("/login1")
 	public ResponseEntity<String> login1(HttpServletResponse response, HttpServletRequest request, @RequestBody User user) {
-	    String fakeUserId = this.findCookie(request, "fakeUserId");
-	    String userEmail = this.findCookie(request, "userEmail");
+	    String fakeUserId = token.findCookie(request, "fakeUserId");
+	    String userEmail = token.findCookie(request, "userEmail");
 
 	    if (fakeUserId == null || userEmail == null) {
 	        // Validar las credenciales del usuario
@@ -152,85 +104,110 @@ public class UserController {
 	    // Retornar solo el token como string
 	    return ResponseEntity.ok(user.getToken());
 	}
-
 	
+	@GetMapping("/verificar-correo")
+	public ResponseEntity<Boolean> verificarCorreo(@RequestParam String email) {
+	    if (email == null || email.isEmpty()) {
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El correo es obligatorio");
+	    }
+	    return this.userService.verificarCorreo(email);
+	}
 	
-	private String findCookie(HttpServletRequest request, String cookieName) {
-		Cookie[] cookies = request.getCookies();
-		if (cookies== null) {
-			return null;
-		}
-		for (int i=0; i<cookies.length; i++) {
-			if(cookies[i].getName().equals(cookieName))
-				return cookies[i].getValue();
+	@GetMapping("/checkCookie")
+	public String checkCookie(HttpServletRequest request) {
+		String fakeUserId = token.findCookie(request, "fakeUserId");
+		if (fakeUserId!=null) {
+			User user = this.userDao.findByCookie(fakeUserId);
+			if (user!=null) {
+				user.setToken(UUID.randomUUID().toString());
+				this.userDao.save(user);
+				return user.getToken();
+			}
 		}
 		return null;
 	}
-	
-	@GetMapping("/validate-session")
-	public ResponseEntity<Boolean> validateSession(HttpServletRequest request) {
-	    // Buscar la cookie con el nombre "fakeUserId"
-	    String fakeUserId = this.findCookie(request, "fakeUserId");
-	    if (fakeUserId != null) {
-	        // Verificar si el usuario asociado a la cookie existe en la base de datos
-	        User user = this.userDao.findByCookie(fakeUserId);
-	        if (user != null) {
-	            return ResponseEntity.ok(true); // Sesión válida
-	        }
-	    }
-	    return ResponseEntity.ok(false); // Sesión no válida o cookie no encontrada
+
+
+
+
+	@GetMapping("/verificar-vip")
+	public ResponseEntity<Boolean> verificarVip(HttpServletRequest request,@RequestParam String email) {
+		String fakeUserId = token.findCookie(request, "fakeUserId");
+		 if (fakeUserId != null) {
+			 boolean validado=token.validar(fakeUserId);
+			 if (validado) {
+				    if (email == null || email.isEmpty()) {
+				        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El correo es obligatorio");
+				    }
+				    return this.userService.verificarVip(email);
+			 }
+			 return ResponseEntity.status(404).body(null);
+		 }
+		 return ResponseEntity.status(404).body(null);
+		
+		
+		
+
 	}
 
 	
-	@GetMapping("/login2")
-	public User login2(HttpServletResponse response, @RequestParam String email, @RequestParam String pwd) {
-		User user = this.userService.find(email, pwd);
-		user.setToken(UUID.randomUUID().toString());
-		response.setHeader("token", user.getToken());
-		return user;
-	}
+
 	
-	@GetMapping("/login3/{email}")
-	public User login3(HttpServletResponse response, @PathVariable String email, @RequestParam String pwd) {
-		return this.login2(response, email, pwd);
-	}
+
+
 	
-	@GetMapping("/getAllUsers")
-	public Iterable<User>  getAllUsers() {
-		return this.userService.getAllUsers();
-	}
-	
-	@DeleteMapping("/delete")
-	public void delete(HttpServletRequest request, @RequestParam String email, @RequestParam String pwd) {
-		User user = this.userService.find(email, pwd);
+
+	@DeleteMapping("/delete2")
+	public ResponseEntity<Map<String, String>> deleteUser(HttpServletRequest request, @RequestParam String email) {
+
+		String fakeUserId = token.findCookie(request, "fakeUserId");
+		 if (fakeUserId != null) {
+			 boolean validado=token.validar(fakeUserId);
+			 if (validado) {
+				 Map<String, String> response = new HashMap<>();
+				    try {
+				        userService.delete(email);
+				        response.put("message", "Usuario eliminado exitosamente");
+				        return ResponseEntity.ok(response);
+				    } catch (Exception e) {
+				        response.put("message", "Error al eliminar el usuario");
+				        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+				    } 
+			 }
+			 return ResponseEntity.status(404).body(null);
+		 }
+		 return ResponseEntity.status(404).body(null);
 		
-		String token = request.getHeader("token");
-		if (!token.equals(user.getToken()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Token " + token + " inválido");
 		
-		this.userService.delete(email);
+		
+		
+		
+		
+	}
+
+
+	@GetMapping("/info")
+	public ResponseEntity<User> getUserInfo(HttpServletRequest request,@RequestParam String email) {
+		 String fakeUserId = token.findCookie(request, "fakeUserId");
+		 if (fakeUserId != null) {
+			 boolean validado=token.validar(fakeUserId);
+			 if (validado) {
+				 User user = userService.getUserInfo(email);
+				    if (user != null) {
+				        return ResponseEntity.ok(user); // Devolvemos el usuario si existe
+				    } else {
+				        return ResponseEntity.status(404).body(null); // Si no se encuentra el usuario, devolvemos un 404
+				    } 
+		        }
+			 return ResponseEntity.status(404).body(null);
+			 
+		 }
+		 return ResponseEntity.status(404).body(null);
+	   
 	}
 	
-	@DeleteMapping("/clearAll")
-	public void clearAll(HttpServletRequest request) {
-		String sToken = request.getHeader("prime");
-		Integer token = Integer.parseInt(sToken);
-		if (!isPrime(token.intValue()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Debes pasar un número primo en la cabecera");
-		if (sToken.length()!=3)
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El nº primo debe tener tres cifras");
-		this.userService.clearAll();
-	}
 	
-	private boolean isPrime(int n) {
-	    if (n <= 1) return false;
-	    for (int i = 2; i <= Math.sqrt(n); i++) {
-	        if (n % i == 0) return false;
-	    }
-	    return true;
-	}
-	
-	
+
 	
 }
 

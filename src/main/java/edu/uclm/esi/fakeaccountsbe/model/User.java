@@ -1,5 +1,7 @@
 package edu.uclm.esi.fakeaccountsbe.model;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
@@ -27,8 +29,9 @@ public class User {
 	@Transient
 	private String ip;
 	private String cookie;
-	@JsonIgnore
+	//@JsonIgnore
 	private boolean vip;
+	private LocalDateTime vipFecha;
 	public String getEmail() {
 		return email;
 	}
@@ -73,4 +76,12 @@ public class User {
 	public void setVip(boolean vip) {
 		this.vip = vip;
 	}
+    // Getter y setter para la fecha de expiración
+    public LocalDateTime getVipFecha() {
+        return vipFecha;
+    }
+
+    public void setVipFecha(LocalDateTime vipFecha) {
+        this.vipFecha = vipFecha;
+    }
 }

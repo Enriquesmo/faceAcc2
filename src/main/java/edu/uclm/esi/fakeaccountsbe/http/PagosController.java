@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import edu.uclm.esi.fakeaccountsbe.services.PagoService;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("pagos")
@@ -26,27 +27,49 @@ public class PagosController {
     @Autowired
     private PagoService service;
 
-   
+	@Autowired
+	private TokenController token;
     
     // Método para preparar la transacción
 	@PutMapping("/prepararTransaccion")
-	public String prepararTransaccion(@RequestBody float importe) {
-		return this.service.prepararTransaccion((long) (importe*100));
+	public String prepararTransaccion(HttpServletRequest request,@RequestBody float importe) {
+		String fakeUserId = token.findCookie(request, "fakeUserId");
+		 if (fakeUserId != null) {
+			 boolean validado=token.validar(fakeUserId);
+			 if (validado) {
+				 return this.service.prepararTransaccion((long) (importe*100));
+			 }
+			 return "Error";
+		 }
+		 return "Error";
 	}
 
 	@PostMapping("/confirmarPago")
-	public ResponseEntity<Map<String, String>> confirmarPago(@RequestParam String paymentMethodId,
+	public ResponseEntity<Map<String, String>> confirmarPago(HttpServletRequest request,@RequestParam String paymentMethodId,
 	                                                         @RequestParam String email,
 	                                                         @RequestParam String clientSecret) {
-	    Map<String, String> response = new HashMap<>();
-	    try {
-	        String message = service.confirmarPago(paymentMethodId, email, clientSecret);
-	        response.put("message", message);
-	        return ResponseEntity.ok(response);
-	    } catch (Exception e) {
-	        response.put("error", e.getMessage());
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-	    }
+		
+		String fakeUserId = token.findCookie(request, "fakeUserId");
+		 if (fakeUserId != null) {
+			 boolean validado=token.validar(fakeUserId);
+			 if (validado) {
+				    Map<String, String> response = new HashMap<>();
+				    try {
+				        String message = service.confirmarPago(paymentMethodId, email, clientSecret);
+				        response.put("message", message);
+				        return ResponseEntity.ok(response);
+				    } catch (Exception e) {
+				        response.put("error", e.getMessage());
+				        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+				    }
+				   
+			 }
+			 return ResponseEntity.status(404).body(null);
+		 }
+		
+		 return ResponseEntity.status(404).body(null);
+		
+
 	}
 
 }

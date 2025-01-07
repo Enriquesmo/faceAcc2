@@ -1,5 +1,6 @@
 package edu.uclm.esi.fakeaccountsbe.services;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -75,9 +76,23 @@ public class UserService {
 	    
 	    // Comprobamos el estado VIP del usuario (asumiendo que existe un método 'isVip' en el modelo User)
 	    boolean isVip = user.getVip(); 
-	    
+	    if (isVip) {
+	    	boolean fecha = user.getVipFecha().isAfter(LocalDateTime.now());
+		    boolean permitir=false;
+		    if(isVip&&fecha) {
+		    	permitir=true;
+		    }
+		    if(!fecha) {
+		    	user.setVip(false);
+		    	this.userDao.save(user);
+		    }
+		    return ResponseEntity.ok(permitir);
+	    }
+	    return ResponseEntity.ok(false);
 	    // Devolvemos true si el usuario es VIP, de lo contrario false
-	    return ResponseEntity.ok(isVip);
+
+	    
+	    
 	}
 
 	public void login(User tryingUser) {
@@ -117,8 +132,9 @@ public class UserService {
 		//users.remove(user);
 		//if (users.isEmpty())
 		//	this.usersByIp.remove(user.getIp());
-		
+		//this.userDao.deleteByCreador(email);
 		this.userDao.deleteById(email);
+		
 	}
 
 	public synchronized void clearOld() {
@@ -127,7 +143,14 @@ public class UserService {
 		//	if (time> 600_000 + user.getCreationTime())
 		//		this.delete(user.getEmail());
 	}
-
+	 public User getUserInfo(String email) {
+	        Optional<User> optUser = userDao.findById(email);
+	        if (optUser.isPresent()) {
+	            return optUser.get(); // Devolvemos el usuario si se encuentra en la base de datos
+	        } else {
+	            return null; // Devolvemos null si no se encuentra el usuario
+	        }
+	    }
 }
 
 
