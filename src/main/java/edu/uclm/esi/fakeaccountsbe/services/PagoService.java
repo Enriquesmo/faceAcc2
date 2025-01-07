@@ -34,7 +34,7 @@ public class PagoService {
 	@Autowired //incluimos esto para los DAO siempre
 	private UserDao userDao;
     static {
-        Stripe.apiKey = "sk_test_51Q7a1xAINUUPHMJgF2JCHcQ3rpBp2n43DJ0504Pf59y9jk8khtvDiT1Iq0MgoL4ADjsZh89x7j6eWiQgcXBnPwKx00Fg7YafKM";
+        Stripe.apiKey = "";
     }
 
     // Crear PaymentIntent en Stripe
