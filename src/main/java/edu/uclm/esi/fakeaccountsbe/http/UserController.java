@@ -28,6 +28,10 @@ import edu.uclm.esi.fakeaccountsbe.model.CredencialesRegistro;
 import edu.uclm.esi.fakeaccountsbe.model.User;
 import edu.uclm.esi.fakeaccountsbe.services.UserService;
 
+import jakarta.mail.MessagingException;
+import edu.uclm.esi.fakeaccountsbe.model.EmailData;
+import edu.uclm.esi.fakeaccountsbe.services.EmailService;
+
 @RestController
 @RequestMapping("users")
 
@@ -239,6 +243,23 @@ public class UserController {
 	    }
 	}
 	
+	
+	@PostMapping("/send-email")
+	public ResponseEntity<Map<String, String>> sendEmail(@RequestBody Map<String, String> emailDataMap) {
+	    String destinatario = emailDataMap.get("destinatario");
+	    String asunto = emailDataMap.get("asunto");
+	    String cuerpo = emailDataMap.get("cuerpo");
+
+	    Map<String, String> response = new HashMap<>();
+	    try {
+	        userService.sendEmail(destinatario, asunto, cuerpo);
+	        response.put("message", "Correo enviado exitosamente");
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        response.put("message", "Error al enviar el correo");
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+	    }
+	}
 	
 
 	

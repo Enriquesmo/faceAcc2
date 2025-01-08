@@ -21,6 +21,8 @@ import edu.uclm.esi.fakeaccountsbe.model.User;
 import java.util.Random;
 import java.util.stream.Collectors;
 import jakarta.mail.MessagingException;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
 public class UserService {
@@ -195,6 +197,10 @@ public class UserService {
 
 		    return contrasenaFinal.toString();
 		}
+		
+		public void sendEmail(String to, String subject, String body) {
+	        emailService.sendEmail(to, subject, body);
+	    }
 }
 
 
