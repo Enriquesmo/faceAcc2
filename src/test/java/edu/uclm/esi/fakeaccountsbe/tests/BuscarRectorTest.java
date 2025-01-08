@@ -36,10 +36,10 @@ public class BuscarRectorTest {
  
   @BeforeEach //@BeforeAll
   public void setUp() {
-	System.setProperty("webdriver.chrome.driver", "C:\\Users\\josel\\Universidad\\AÑO 5\\CUATRIMESTRE 1\\Tecnologías y Sistemas Web\\LABORATORIO\\chromedriver-win64\\chromedriver.exe");  
+	System.setProperty("webdriver.chrome.driver", "C:/Users/Enrique/Desktop/webdriver/testingTECWEB/chromedriver-win64/chromedriver.exe");  
 	  
 	ChromeOptions options = new ChromeOptions();
-	options.setBinary("C:\\Users\\\\josel\\\\Universidad\\AÑO 5\\CUATRIMESTRE 1\\Tecnologías y Sistemas Web\\LABORATORIO\\chrome-win64\\chrome.exe"); 
+	options.setBinary("C:/Users/Enrique/Desktop/webdriver/testingTECWEB/chrome-win64/chrome.exe"); 
 	options.addArguments("--remote-allow-origins=*");
     
 	driver = new ChromeDriver(options);
