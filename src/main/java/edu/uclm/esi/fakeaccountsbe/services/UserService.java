@@ -34,22 +34,6 @@ public class UserService {
 	public void registrar(String ip, User user) {
 		if(this.userDao.findById(user.getEmail()).isPresent())
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Ya existe un usuario con ese correo electrónico");
-
-		//if (this.users.get(user.getEmail())!=null)
-		//	throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Ya existe un usuario con ese correo electrónico");
-		
-		//List<User> users = this.usersByIp.get(ip);
-		//if (users==null) 
-		//	users = new ArrayList<>();
-		
-		//if (users.size()>10)
-		//	throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes crear más de 10 usuarios");
-		
-		//user.setIp(ip);
-		//users.add(user);
-		
-		//this.usersByIp.put(ip, users);
-		//this.users.put(user.getEmail(), user);
 		
 		user.setIp(ip);
 		user.setCreationTime(System.currentTimeMillis());
@@ -69,7 +53,7 @@ public class UserService {
 	}
 	public ResponseEntity<Boolean> verificarVip(String email) {
 	    // Comprobamos si el correo existe en la base de datos
-	    Optional<User> userOpt = this.userDao.findById(email); 
+			Optional<User> userOpt = this.userDao.findById(email); 
 	    
 	    // Si el correo no existe, devolvemos false
 	    if (!userOpt.isPresent()) {
@@ -100,9 +84,9 @@ public class UserService {
 	    
 	}
 
-	public void login(User tryingUser) {
-		this.find(tryingUser.getEmail(), tryingUser.getPwd());
-	}
+	//public void login(User tryingUser) {
+		//this.find(tryingUser.getEmail(), tryingUser.getPwd());
+	//}
 
 	public void clearAll() {
 		//this.usersByIp.clear();
@@ -116,46 +100,43 @@ public class UserService {
 	}
 
 	public User find(String email, String pwd) {
-		//User user = this.users.get(email);
-		//if (user==null || !user.getPwd().equals(pwd))
-		//	throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Credenciales incorrectas");
-		//return user;
+
 		Optional<User> optUser=this.userDao.findById(email);
 		
 		if (!optUser.isPresent())
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Credenciales incorrectas1");
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuario no encontrado");
 		
 		User user=optUser.get();
 		if (!user.getPwd().equals(pwd))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Credenciales incorrectas2 " + user.getPwd() + " " + pwd);
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Credenciales incorrectas ");
 		return user;
 	}
 
-	public void delete(String email) {
+	//public void delete(String email) {
 		//User user = this.users.remove(email);
 		//List<User> users = this.usersByIp.get(user.getIp());
 		//users.remove(user);
 		//if (users.isEmpty())
 		//	this.usersByIp.remove(user.getIp());
 		//this.userDao.deleteByCreador(email);
-		this.userDao.deleteById(email);
+		//this.userDao.deleteById(email);
 		
-	}
+	//}
 
-	public synchronized void clearOld() {
+	//public synchronized void clearOld() {
 		//long time = System.currentTimeMillis();
 		//for (User user : this.users.values())
 		//	if (time> 600_000 + user.getCreationTime())
 		//		this.delete(user.getEmail());
-	}
-	 public User getUserInfo(String email) {
-	        Optional<User> optUser = userDao.findById(email);
-	        if (optUser.isPresent()) {
-	            return optUser.get(); // Devolvemos el usuario si se encuentra en la base de datos
-	        } else {
-	            return null; // Devolvemos null si no se encuentra el usuario
-	        }
-	    }
+	//}
+	// public User getUserInfo(String email) {
+	  //      Optional<User> optUser = userDao.findById(email);
+	    //    if (optUser.isPresent()) {
+	      //      return optUser.get(); // Devolvemos el usuario si se encuentra en la base de datos
+	       // } else {
+	         //   return null; // Devolvemos null si no se encuentra el usuario
+	       // }
+	   // }
 	 
 	 @Autowired
 		private EmailService emailService; // Servicio para enviar emails

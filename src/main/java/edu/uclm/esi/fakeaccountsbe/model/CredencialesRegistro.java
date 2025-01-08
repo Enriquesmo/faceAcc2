@@ -10,7 +10,7 @@ public class CredencialesRegistro {
 	private boolean vip;
 	public void comprobar() {
 		if (!pwd1.equals(pwd2))
-			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Las passwords no coinciden");
+			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Las passwords no coinciden.");
 		if (pwd1.length()<4)
 			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "La contraseña tiene que tener 4 o más caracteres");
 	}

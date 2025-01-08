@@ -32,16 +32,24 @@ public class PagosController {
     
     // Método para preparar la transacción
 	@PutMapping("/prepararTransaccion")
-	public String prepararTransaccion(HttpServletRequest request,@RequestBody float importe) {
+	public ResponseEntity<?> prepararTransaccion(HttpServletRequest request,@RequestBody float importe) {
 		String fakeUserId = token.findCookie(request, "fakeUserId");
 		 if (fakeUserId != null) {
 			 boolean validado=token.validar(fakeUserId);
 			 if (validado) {
-				 return this.service.prepararTransaccion((long) (importe*100));
+				 try {
+					 String transaccion=this.service.prepararTransaccion((long) (importe*100));
+					 return ResponseEntity.ok(transaccion);
+				 }catch (ResponseStatusException e) {
+		                return ResponseEntity.status(e.getStatusCode())
+		                        .body(Map.of("message", e.getReason()));
+				 }
 			 }
-			 return "Error";
+			 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+			            .body(Map.of("message", "Error al verificar su sesión."));
 		 }
-		 return "Error";
+		 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+			        .body(Map.of("message", "Usuario no autenticado."));
 	}
 
 	@PostMapping("/confirmarPago")
@@ -64,10 +72,12 @@ public class PagosController {
 				    }
 				   
 			 }
-			 return ResponseEntity.status(404).body(null);
+			 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+			            .body(Map.of("message", "Error al verificar su sesión."));
 		 }
 		
-		 return ResponseEntity.status(404).body(null);
+		 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+			        .body(Map.of("message", "Usuario no autenticado."));
 		
 
 	}

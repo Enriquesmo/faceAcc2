@@ -14,6 +14,6 @@ public class Deleter {
 
     @Scheduled(fixedRate = 600_000) // 600_000 ms = 10 minutos
     public void performTask() {
-        this.service.clearOld();
+       // this.service.clearOld();
     }
 }
