@@ -39,23 +39,21 @@ public class TokenController {
 	
 	@GetMapping("/validate-session")
 	public ResponseEntity<Boolean> validateSession(HttpServletRequest request) {
-	    // Buscar la cookie con el nombre "fakeUserId"
 	    String fakeUserId = this.findCookie(request, "fakeUserId");
 	    if (fakeUserId != null) {
 	        boolean validado=validar(fakeUserId);
-	        //User user = this.userDao.findByCookie(fakeUserId);
 	        if (validado) {
-	            return ResponseEntity.ok(true); // Sesión válida
+	            return ResponseEntity.ok(true); 
 	        }
 	    }
-	    return ResponseEntity.ok(false); // Sesión no válida o cookie no encontrada
+	    return ResponseEntity.ok(false); 
 	}
 
 	@PutMapping("/validate")
 	public boolean validar(String Token) {
 		User user = this.userDao.findByCookie(Token);
 		if (user != null) {
-            return true; // Sesión válida
+            return true; 
         }else {
         	return false;
         }

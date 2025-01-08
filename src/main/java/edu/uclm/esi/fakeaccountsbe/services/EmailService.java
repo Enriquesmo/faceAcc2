@@ -18,17 +18,12 @@ public class EmailService {
 
     public void enviarEmail(String destinatario, String asunto, String cuerpo) throws MessagingException {
         try {
-            // Crear el mensaje
             MimeMessage mensaje = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mensaje, "UTF-8");
-
-            // Configuración del mensaje
             helper.setFrom("miriamltn12@gmail.com");  
             helper.setTo(destinatario);
             helper.setSubject(asunto);
-            helper.setText(cuerpo, true);  // El segundo parámetro indica si el cuerpo es HTML
-
-            // Enviar el correo
+            helper.setText(cuerpo, true);
             javaMailSender.send(mensaje);
             System.out.println("Correo enviado correctamente.");
         } catch (MailException e) {
@@ -38,13 +33,10 @@ public class EmailService {
     }
     
     public void sendEmail(String to, String subject, String body) {
-        // Crear un mensaje de correo simple
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);           // Destinatario
-        message.setSubject(subject); // Asunto
-        message.setText(body);       // Cuerpo
-
-        // Enviar el correo
+        message.setTo(to);          
+        message.setSubject(subject); 
+        message.setText(body);       
         try {
             javaMailSender.send(message);
             System.out.println("Correo enviado a: " + to);
