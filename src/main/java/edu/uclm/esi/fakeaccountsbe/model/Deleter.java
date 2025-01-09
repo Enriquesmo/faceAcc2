@@ -12,7 +12,7 @@ public class Deleter {
 	@Autowired
 	private UserService service;
 
-    @Scheduled(fixedRate = 600_000) // 600_000 ms = 10 minutos
+    @Scheduled(fixedRate = 600_000) 
     public void performTask() {
        // this.service.clearOld();
     }

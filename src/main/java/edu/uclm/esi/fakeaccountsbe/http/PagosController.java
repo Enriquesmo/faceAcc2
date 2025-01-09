@@ -30,7 +30,6 @@ public class PagosController {
 	@Autowired
 	private TokenController token;
     
-    // Método para preparar la transacción
 	@PutMapping("/prepararTransaccion")
 	public ResponseEntity<?> prepararTransaccion(HttpServletRequest request,@RequestBody float importe) {
 		String fakeUserId = token.findCookie(request, "fakeUserId");
@@ -41,22 +40,17 @@ public class PagosController {
 					 String transaccion=this.service.prepararTransaccion((long) (importe*100));
 					 return ResponseEntity.ok(transaccion);
 				 }catch (ResponseStatusException e) {
-		                return ResponseEntity.status(e.getStatusCode())
-		                        .body(Map.of("message", e.getReason()));
+		                return ResponseEntity.status(e.getStatusCode()).body(Map.of("message", e.getReason()));
 				 }
 			 }
-			 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-			            .body(Map.of("message", "Error al verificar su sesión."));
+			 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Error al verificar su sesión."));
 		 }
-		 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-			        .body(Map.of("message", "Usuario no autenticado."));
+		 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Usuario no autenticado."));
 	}
 
+	
 	@PostMapping("/confirmarPago")
-	public ResponseEntity<Map<String, String>> confirmarPago(HttpServletRequest request,@RequestParam String paymentMethodId,
-	                                                         @RequestParam String email,
-	                                                         @RequestParam String clientSecret) {
-		
+	public ResponseEntity<Map<String, String>> confirmarPago(HttpServletRequest request,@RequestParam String paymentMethodId,@RequestParam String email,@RequestParam String clientSecret) {
 		String fakeUserId = token.findCookie(request, "fakeUserId");
 		 if (fakeUserId != null) {
 			 boolean validado=token.validar(fakeUserId);
@@ -69,17 +63,11 @@ public class PagosController {
 				    } catch (Exception e) {
 				        response.put("error", e.getMessage());
 				        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-				    }
-				   
+				    }		   
 			 }
-			 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-			            .body(Map.of("message", "Error al verificar su sesión."));
+			 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Error al verificar su sesión."));
 		 }
-		
-		 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-			        .body(Map.of("message", "Usuario no autenticado."));
-		
-
+		 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Usuario no autenticado."));
 	}
 
 }

@@ -18,24 +18,31 @@ public class CredencialesRegistro {
 	public String getEmail() {
 		return email;
 	}
+	
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	
 	public String getPwd1() {
 		return pwd1;
 	}
+	
 	public void setPwd1(String pwd) {
 		this.pwd1 = pwd;
 	}
+	
 	public String getPwd2() {
 		return pwd2;
 	}
+	
 	public void setPwd2(String pwd) {
 		this.pwd2 = pwd;
 	}
+	
 	public boolean getVip() {
 		return vip;
 	}
+	
 	public void setVip(boolean vip) {
 		this.vip = vip;
 	}

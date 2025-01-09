@@ -55,10 +55,8 @@ public class UserController {
 			this.userService.registrar(req.getRemoteAddr(), user);
 			return ResponseEntity.ok(true);
 		}catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode())
-                    .body(Map.of("message", e.getReason()));
+            return ResponseEntity.status(e.getStatusCode()).body(Map.of("message", e.getReason()));
 		}
-
 	}
 	
 	@PutMapping("/login1")
@@ -66,46 +64,35 @@ public class UserController {
 		try {
 		    String fakeUserId = token.findCookie(request, "fakeUserId");
 		    String userEmail = token.findCookie(request, "userEmail");
-
 		    if (fakeUserId == null || userEmail == null) {
-		        // Validar las credenciales del usuario
 		        user = this.userService.find(user.getEmail(), user.getPwd());
 		        if (user == null) {
 		            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas");
 		        }
-
-		        // Generar un nuevo ID para la cookie
 		        fakeUserId = UUID.randomUUID().toString();
-
-		        // Configurar la cookie de fakeUserId
 		        Cookie idCookie = new Cookie("fakeUserId", fakeUserId);
-		        idCookie.setMaxAge(3600 * 24 * 365); // 1 año
+		        idCookie.setMaxAge(3600 * 24 * 365); 
 		        idCookie.setPath("/");
-		        //idCookie.setHttpOnly(true); // Previene accesos desde JavaScript
-		        idCookie.setSecure(true);   // Solo HTTPS
-		        idCookie.setAttribute("SameSite", "Strict"); // Previene CSRF
 
-		        // Configurar la cookie de userEmail
+		        idCookie.setSecure(true);   
+		        idCookie.setAttribute("SameSite", "Strict"); 
+
 		        Cookie emailCookie = new Cookie("userEmail", user.getEmail());
-		        emailCookie.setMaxAge(3600 * 24 * 365); // 1 año
+		        emailCookie.setMaxAge(3600 * 24 * 365); 
 		        emailCookie.setPath("/");
-		        emailCookie.setHttpOnly(false); // Previene accesos desde JavaScript
-		        emailCookie.setSecure(true);   // Solo HTTPS
-		        emailCookie.setAttribute("SameSite", "Strict"); // Previene CSRF
+		        emailCookie.setHttpOnly(false); 
+		        emailCookie.setSecure(true);   
+		        emailCookie.setAttribute("SameSite", "Strict"); 
 
-		        // Añadir las cookies a la respuesta
 		        response.addCookie(idCookie);
 		        response.addCookie(emailCookie);
 
-		        // Asociar la cookie con el usuario y generar un token
 		        user.setCookie(fakeUserId);
 		        user.setToken(UUID.randomUUID().toString());
 		        this.userDao.save(user);
 		    } else {
-		        // Buscar al usuario por la cookie existente
 		        user = this.userDao.findByCookie(fakeUserId);
 		        if (user != null && user.getEmail().equals(userEmail)) {
-		            // Generar un nuevo token para el usuario
 		            user.setToken(UUID.randomUUID().toString());
 		            this.userDao.save(user);
 		        } else {
@@ -113,40 +100,11 @@ public class UserController {
 		        }
 		    }
 
-		    // Retornar solo el token como string
 		    return ResponseEntity.ok(user.getToken());
 		}catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode())
-                    .body(Map.of("message", e.getReason()));
+            return ResponseEntity.status(e.getStatusCode()).body(Map.of("message", e.getReason()));
 		}
-
 	}
-	
-	//@GetMapping("/verificar-correo")
-	//public ResponseEntity<Boolean> verificarCorreo(@RequestParam String email) {
-	  //  if (email == null || email.isEmpty()) {
-	    //    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El correo es obligatorio");
-	    //}
-	    //return this.userService.verificarCorreo(email);
-	//}
-	
-	//KEKE ESTO SE USA?????? NO LO ENCUENTRO
-	@GetMapping("/checkCookie")
-	public String checkCookie(HttpServletRequest request) {
-		String fakeUserId = token.findCookie(request, "fakeUserId");
-		if (fakeUserId!=null) {
-			User user = this.userDao.findByCookie(fakeUserId);
-			if (user!=null) {
-				user.setToken(UUID.randomUUID().toString());
-				this.userDao.save(user);
-				return user.getToken();
-			}
-		}
-		return null;
-	}
-
-
-
 
 	@GetMapping("/verificar-vip")
 	public ResponseEntity<?> verificarVip(HttpServletRequest request,@RequestParam String email) {
@@ -160,75 +118,15 @@ public class UserController {
 					    }
 					    return this.userService.verificarVip(email);
 				 }
-			        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-			                .body(Map.of("message", "Error al verificar su sesión."));
+			        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Error al verificar su sesión."));
 			 }
 
 		}catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode())
-                    .body(Map.of("message", e.getReason()));
+            return ResponseEntity.status(e.getStatusCode()).body(Map.of("message", e.getReason()));
 		}
+	  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Usuario no autenticado."));
 		
-	    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-	            .body(Map.of("message", "Usuario no autenticado."));
-		
-		
-		
-
 	}
-
-	
-
-	
-
-
-	
-
-	//@DeleteMapping("/delete2")
-	//public ResponseEntity<Map<String, String>> deleteUser(HttpServletRequest request, @RequestParam String email) {
-
-//		String fakeUserId = token.findCookie(request, "fakeUserId");
-	//	 if (fakeUserId != null) {
-		//	 boolean validado=token.validar(fakeUserId);
-			// if (validado) {
-				// Map<String, String> response = new HashMap<>();
-				  //  try {
-				    //    userService.delete(email);
-				      //  response.put("message", "Usuario eliminado exitosamente");
-				       // return ResponseEntity.ok(response);
-				   // } catch (Exception e) {
-				     //   response.put("message", "Error al eliminar el usuario");
-				      //  return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-				    //} 
-			 //}
-			// return ResponseEntity.status(404).body(null);
-		 //}
-		 //return ResponseEntity.status(404).body(null);
-			
-		
-	//}
-
-
-	//@GetMapping("/info")
-	//public ResponseEntity<User> getUserInfo(HttpServletRequest request,@RequestParam String email) {
-		// String fakeUserId = token.findCookie(request, "fakeUserId");
-		// if (fakeUserId != null) {
-			// boolean validado=token.validar(fakeUserId);
-			// if (validado) {
-				// User user = userService.getUserInfo(email);
-				  //  if (user != null) {
-				    //    return ResponseEntity.ok(user); // Devolvemos el usuario si existe
-				    //} else {
-				      //  return ResponseEntity.status(404).body(null); // Si no se encuentra el usuario, devolvemos un 404
-				   // } 
-		        //}
-			// return ResponseEntity.status(404).body(null);
-			 
-		// }
-		// return ResponseEntity.status(404).body(null);
-	   
-	//}
-	
 	
 	@PostMapping("/recuperarContrasena")
 	public ResponseEntity<String> recuperarContrasena(@RequestBody Map<String, String> request) {
@@ -245,20 +143,29 @@ public class UserController {
 	
 	
 	@PostMapping("/send-email")
-	public ResponseEntity<Map<String, String>> sendEmail(@RequestBody Map<String, String> emailDataMap) {
-	    String destinatario = emailDataMap.get("destinatario");
-	    String asunto = emailDataMap.get("asunto");
-	    String cuerpo = emailDataMap.get("cuerpo");
+	public ResponseEntity<Map<String, String>> sendEmail(HttpServletRequest request,@RequestBody Map<String, String> emailDataMap) {
+		 String fakeUserId = token.findCookie(request, "fakeUserId");
+		    if (fakeUserId != null) {
+		        boolean validado = token.validar(fakeUserId);
+		        if (validado) {
+		    		String destinatario = emailDataMap.get("destinatario");
+		    	    String asunto = emailDataMap.get("asunto");
+		    	    String cuerpo = emailDataMap.get("cuerpo");
 
-	    Map<String, String> response = new HashMap<>();
-	    try {
-	        userService.sendEmail(destinatario, asunto, cuerpo);
-	        response.put("message", "Correo enviado exitosamente");
-	        return ResponseEntity.ok(response);
-	    } catch (Exception e) {
-	        response.put("message", "Error al enviar el correo");
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-	    }
+		    	    Map<String, String> response = new HashMap<>();
+		    	    try {
+		    	    	
+		    	        userService.sendEmail(destinatario, asunto, cuerpo);
+		    	        response.put("message", "Correo enviado exitosamente");
+		    	        return ResponseEntity.ok(response);
+		    	    } catch (Exception e) {
+		    	        response.put("message", "Error al enviar el correo");
+		    	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		    	    }
+		        }
+		        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Error al verificar su sesión."));
+		    }
+		    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Usuario no autenticado."));
 	}
 	
 
