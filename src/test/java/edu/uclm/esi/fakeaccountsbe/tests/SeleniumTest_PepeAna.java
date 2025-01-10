@@ -16,6 +16,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
@@ -56,11 +57,11 @@ public class SeleniumTest_PepeAna {
         options.addArguments("--remote-allow-origins=*");
 
         driverPepe = new ChromeDriver(options);
-        this.waitPepe = new WebDriverWait(driverPepe, Duration.ofSeconds(10));
+        this.waitPepe = new WebDriverWait(driverPepe, Duration.ofSeconds(3));
         jsPepe = (JavascriptExecutor) driverPepe;
 
         driverAna = new ChromeDriver(options);
-        this.waitAna = new WebDriverWait(driverAna, Duration.ofSeconds(10));
+        this.waitAna = new WebDriverWait(driverAna, Duration.ofSeconds(3));
         jsAna = (JavascriptExecutor) driverAna;
 
         driverPepe.get("https://localhost:4200/Login/");
@@ -133,8 +134,11 @@ public class SeleniumTest_PepeAna {
     @Order(3)
     public void testPepeAddsItemsToList() {
         aniadirElemento(driverPepe, waitPepe, "30", "Latas de cerveza");
-        aniadirElemento(driverPepe, waitPepe, "1", "Tarta");
+        pausa(500);
         aniadirElemento(driverPepe, waitPepe, "2", "Bolsas de patatas fritas");
+        pausa(500);
+        aniadirElemento(driverPepe, waitPepe, "1", "Tarta");
+        pausa(500);
     }
     
     /**
@@ -144,9 +148,10 @@ public class SeleniumTest_PepeAna {
     @Order(4)
     public void testPepeInvitesAna() {
         invitarUsuario(driverPepe, waitPepe, jsPepe, "anatecweb14@gmail.com");
-        
         url = driverPepe.findElement(By.id("urlInvitacion")).getAttribute("value");
-        pausa(3000);
+        pausa(5000);
+        Alert alert = driverPepe.switchTo().alert();
+        alert.accept();
     }
 
     /**
@@ -161,6 +166,7 @@ public class SeleniumTest_PepeAna {
         login(driverAna, waitAna, "anatecweb14@gmail.com", "Ana123456");
 
     }
+    
     
     /**
      * 9)	Ana acepta la invitación.
@@ -179,7 +185,7 @@ public class SeleniumTest_PepeAna {
     @Order(7)
     public void testAnaMarksItemAsPurchased() {
     	comprarTarta(driverAna, waitAna);
-        pausa(15000);
+        pausa(1000);
     }
 
     // Helper methods for various actions
