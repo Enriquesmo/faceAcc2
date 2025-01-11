@@ -31,13 +31,12 @@ import com.stripe.param.PaymentIntentCreateParams;
 
 @Service
 public class PagoService {
-	@Autowired //incluimos esto para los DAO siempre
+	@Autowired 
 	private UserDao userDao;
     static {
         Stripe.apiKey = "sk_test_51Q7a1xAINUUPHMJgF2JCHcQ3rpBp2n43DJ0504Pf59y9jk8khtvDiT1Iq0MgoL4ADjsZh89x7j6eWiQgcXBnPwKx00Fg7YafKM";
     }
 
-    // Crear PaymentIntent en Stripe
     public String prepararTransaccion(long importe) {
         PaymentIntentCreateParams params = new PaymentIntentCreateParams.Builder()
             .setCurrency("eur")
@@ -46,7 +45,7 @@ public class PagoService {
 
         try {
             PaymentIntent intent = PaymentIntent.create(params);
-            return intent.getClientSecret();  // Retornamos el client_secret
+            return intent.getClientSecret();  
         } catch (StripeException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error al crear el PaymentIntent: " + e.getMessage());
         }
@@ -54,21 +53,16 @@ public class PagoService {
 
     public String confirmarPago(String paymentMethodId, String email, String clientSecret) {
         try {
-            // Extraer el ID del PaymentIntent desde el clientSecret
             String paymentIntentId = extractPaymentIntentId(clientSecret);
 
-            // Cargar el PaymentIntent usando el ID
             PaymentIntent intent = PaymentIntent.retrieve(paymentIntentId);
 
-            // Crear los parámetros para confirmar el PaymentIntent
             PaymentIntentConfirmParams params = PaymentIntentConfirmParams.builder()
                 .setPaymentMethod(paymentMethodId)
                 .build();
 
-            // Confirmar el PaymentIntent
             PaymentIntent confirmedIntent = intent.confirm(params);
 
-            // Verificar si el pago fue exitoso
             if ("succeeded".equals(confirmedIntent.getStatus())) {
         		Optional<User> optUser=this.userDao.findById(email);
         		
@@ -89,14 +83,12 @@ public class PagoService {
         }
     }
 
-    /**
-     * Extrae el ID del PaymentIntent desde el clientSecret.
-     */
+
     private String extractPaymentIntentId(String clientSecret) {
         if (clientSecret == null || !clientSecret.startsWith("pi_")) {
             throw new IllegalArgumentException("El clientSecret no es válido.");
         }
-        return clientSecret.split("_secret")[0]; // Devuelve solo la parte antes de "_secret"
+        return clientSecret.split("_secret")[0]; 
     }
 
 }
